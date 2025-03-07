@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Cabecera con fondo degradado -->
+    <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
+        <div class="bg-gradient-to-r 
+            {% if collection.pk|divisibleby:5 %}
+                from-purple-500 to-indigo-600
+            {% elif collection.pk|divisibleby:4 %}
+                from-green-500 to-teal-600
+            {% elif collection.pk|divisibleby:3 %}
+                from-red-500 to-pink-600
+            {% elif collection.pk|divisibleby:2 %}
+                from-blue-500 to-indigo-600
+            {% else %}
+                from-eureka-orange to-yellow-500
+            {% endif %} p-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ title }}</h1>
+                    <p class="text-white text-opacity-90">
+                        {% if button_text == 'Crear' %}
+                            Comparte tus ideas y conocimientos en la colección "{{ collection.name }}"
+                        {% else %}
+                            Actualiza la información de tu entrada
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{% url 'collection_detail' collection.pk %}" class="bg-white text-eureka-dark hover:bg-gray-100 transition-all duration-300 rounded-full py-2 px-6 flex items-center font-medium shadow-md transform hover:scale-105">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mensajes con animación -->
+    {% if messages %}
+        <div class="mb-8 space-y-2">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-fadeIn">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Formulario con diseño mejorado -->
+    <div class="card shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Pestañas de navegación (simuladas) -->
+        <div class="bg-gray-50 border-b border-gray-200">
+            <div class="flex">
+                <div class="py-3 px-6 border-b-2 border-eureka-orange text-eureka-orange font-medium">
+                    Información de la entrada
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-8">
+            <form method="post" novalidate class="space-y-6" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Título con icono -->
+                <div class="space-y-2">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-heading text-eureka-orange mr-2"></i>
+                        {{ form.title.label }}{% if form.title.field.required %} <span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-pen text-gray-400"></i>
+                        </div>
+                        {{ form.title }}
+                        <script>
+                            document.getElementById('{{ form.title.id_for_label }}').classList.add('pl-10', 'w-full', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-eureka-orange', 'focus:border-transparent', 'transition-colors');
+                        </script>
+                    </div>
+                    {% if form.title.help_text %}
+                        <p class="text-sm text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            {{ form.title.help_text }}
+                        </p>
+                    {% endif %}
+                    {% if form.title.errors %}
+                        <div class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">
+                            {% for error in form.title.errors %}
+                                <p><i class="fas fa-exclamation-circle mr-1"></i> {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Contenido con icono -->
+                <div class="space-y-2">
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-align-left text-eureka-orange mr-2"></i>
+                        {{ form.content.label }}{% if form.content.field.required %} <span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    <div class="relative rounded-md shadow-sm">
+                        {{ form.content }}
+                        <script>
+                            document.getElementById('{{ form.content.id_for_label }}').classList.add('w-full', 'py-2', 'px-3', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-eureka-orange', 'focus:border-transparent', 'transition-colors');
+                        </script>
+                    </div>
+                    {% if form.content.help_text %}
+                        <p class="text-sm text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            {{ form.content.help_text }}
+                        </p>
+                    {% endif %}
+                    {% if form.content.errors %}
+                        <div class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">
+                            {% for error in form.content.errors %}
+                                <p><i class="fas fa-exclamation-circle mr-1"></i> {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Imagen con icono -->
+                <div class="space-y-2">
+                    <label for="{{ form.entry_image.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-image text-eureka-orange mr-2"></i>
+                        {{ form.entry_image.label }}
+                    </label>
+                    
+                    <!-- Vista previa de la imagen existente -->
+                    {% if entry and entry.entry_image %}
+                    <div class="mb-3">
+                        <div class="relative group">
+                            <img src="{{ entry.entry_image.url }}?t={{ entry.updated_at|date:'U' }}" alt="{{ entry.title }}" class="h-40 object-cover rounded-lg border border-gray-200">
+                            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                                <span class="text-white text-sm">Imagen actual</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Sube una nueva imagen para reemplazar la actual</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Campo para subir imagen -->
+                    <div class="relative">
+                        <label class="flex items-center p-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                            {{ form.entry_image }}
+                            <script>
+                                document.getElementById('{{ form.entry_image.id_for_label }}').classList.add('hidden');
+                            </script>
+                            <div class="mr-3 text-gray-500">
+                                <i class="fas fa-upload text-xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <span class="text-sm text-gray-700">Añadir imagen (opcional)</span>
+                                <p class="text-xs text-gray-500">JPG, PNG o GIF (máx. 5MB)</p>
+                            </div>
+                            <div id="image-preview-container" class="hidden ml-auto">
+                                <img id="image-preview" class="h-10 w-10 object-cover rounded" src="#" alt="Vista previa">
+                            </div>
+                        </label>
+                    </div>
+                    
+                    {% if form.entry_image.help_text %}
+                        <p class="text-sm text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            {{ form.entry_image.help_text }}
+                        </p>
+                    {% endif %}
+                    {% if form.entry_image.errors %}
+                        <div class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">
+                            {% for error in form.entry_image.errors %}
+                                <p><i class="fas fa-exclamation-circle mr-1"></i> {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Opciones en dos columnas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <!-- Visibilidad con icono -->
+                    <div class="space-y-2">
+                        <label for="{{ form.visibility.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-eye text-eureka-orange mr-2"></i>
+                            {{ form.visibility.label }}
+                        </label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-globe text-gray-400"></i>
+                            </div>
+                            {{ form.visibility }}
+                            <script>
+                                document.getElementById('{{ form.visibility.id_for_label }}').classList.add('pl-10', 'w-full', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-eureka-orange', 'focus:border-transparent', 'transition-colors');
+                            </script>
+                        </div>
+                        {% if form.visibility.help_text %}
+                            <p class="text-sm text-gray-500 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ form.visibility.help_text }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Estado con icono -->
+                    <div class="space-y-2">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-bookmark text-eureka-orange mr-2"></i>
+                            {{ form.status.label }}
+                        </label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-gray-400"></i>
+                            </div>
+                            {{ form.status }}
+                            <script>
+                                document.getElementById('{{ form.status.id_for_label }}').classList.add('pl-10', 'w-full', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-eureka-orange', 'focus:border-transparent', 'transition-colors');
+                            </script>
+                        </div>
+                        {% if form.status.help_text %}
+                            <p class="text-sm text-gray-500 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ form.status.help_text }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Botones con mejor diseño -->
+                <div class="pt-4 border-t border-gray-200 flex justify-end space-x-3">
+                    <a href="{% url 'collection_detail' collection.pk %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-times mr-2"></i> Cancelar
+                    </a>
+                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-eureka-orange to-yellow-500 text-white rounded-md hover:from-eureka-dark hover:to-eureka-dark transition-all duration-300 flex items-center shadow-md">
+                        {% if button_text == 'Crear' %}
+                            <i class="fas fa-plus mr-2"></i>
+                        {% else %}
+                            <i class="fas fa-save mr-2"></i>
+                        {% endif %}
+                        {{ button_text }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Consejos útiles -->
+    <div class="mt-8 bg-blue-50 rounded-lg p-4 border border-blue-100">
+        <h3 class="text-blue-800 font-medium flex items-center mb-2">
+            <i class="fas fa-lightbulb text-blue-500 mr-2"></i> Consejos para crear entradas efectivas
+        </h3>
+        <ul class="text-blue-700 text-sm space-y-2">
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>Usa títulos descriptivos y concisos para tus entradas</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>Organiza tu contenido en párrafos para facilitar la lectura</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>Marca como favoritas las entradas más importantes para acceder rápidamente a ellas</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>Establece la visibilidad adecuada según el contenido que compartas</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación sutil al cargar el formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.classList.add('opacity-0');
+        setTimeout(() => {
+            form.classList.add('transition-opacity', 'duration-500');
+            form.classList.remove('opacity-0');
+        }, 100);
+        
+        // Previsualización de imagen
+        const imageInput = document.getElementById('{{ form.entry_image.id_for_label }}');
+        const previewContainer = document.getElementById('image-preview-container');
+        const preview = document.getElementById('image-preview');
+        
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                preview.src = '';
+                previewContainer.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %} 

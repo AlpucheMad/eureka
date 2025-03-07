@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Cabecera con fondo degradado -->
+    <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
+        <div class="bg-gradient-to-r from-eureka-orange to-yellow-400 p-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ title }}</h1>
+                    <p class="text-white text-opacity-90">Organiza tus ideas y conocimientos en colecciones temáticas</p>
+                </div>
+                <a href="{% url 'collection_create' %}" class="bg-white text-eureka-dark hover:bg-gray-100 transition-all duration-300 rounded-full py-2 px-6 flex items-center font-medium shadow-md transform hover:scale-105">
+                    <i class="fas fa-plus mr-2"></i> Crear colección
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mensajes con animación -->
+    {% if messages %}
+        <div class="mb-8 space-y-2">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-fadeIn">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Lista de colecciones con diseño mejorado -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% if collections %}
+            {% for collection in collections %}
+                <div class="card overflow-hidden h-full flex flex-col transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100">
+                    <!-- Cabecera de la colección con color aleatorio basado en el ID -->
+                    <div class="h-3 bg-gradient-to-r 
+                        {% if collection.pk|divisibleby:5 %}
+                            from-purple-500 to-indigo-600
+                        {% elif collection.pk|divisibleby:4 %}
+                            from-green-500 to-teal-600
+                        {% elif collection.pk|divisibleby:3 %}
+                            from-red-500 to-pink-600
+                        {% elif collection.pk|divisibleby:2 %}
+                            from-blue-500 to-indigo-600
+                        {% else %}
+                            from-eureka-orange to-yellow-500
+                        {% endif %}
+                    "></div>
+                    
+                    <div class="p-6 flex-grow">
+                        <div class="flex items-start justify-between mb-4">
+                            <h2 class="text-xl font-bold text-eureka-dark">{{ collection.name }}</h2>
+                            <div class="flex space-x-1">
+                                <a href="{% url 'collection_edit' collection.pk %}" class="text-gray-400 hover:text-blue-500 transition-colors p-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'collection_delete' collection.pk %}" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-4 h-16 overflow-hidden">
+                            {% if collection.description %}
+                                {{ collection.description|truncatechars:100 }}
+                            {% else %}
+                                <span class="text-gray-400 italic">Sin descripción</span>
+                            {% endif %}
+                        </p>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <div class="flex items-center">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-eureka-orange mr-2">
+                                    <i class="far fa-sticky-note"></i>
+                                </span>
+                                <span>{{ collection.entries.count }} entradas</span>
+                            </div>
+                            <div>
+                                <i class="far fa-calendar-alt text-eureka-orange mr-1"></i> {{ collection.created_at|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'collection_detail' collection.pk %}" class="block bg-gray-50 hover:bg-gray-100 transition-colors p-4 text-center text-eureka-orange font-medium">
+                            Ver colección <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full">
+                <div class="card p-12 text-center bg-gradient-to-b from-white to-gray-50">
+                    <div class="text-8xl text-eureka-orange mb-6 animate-pulse">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-eureka-dark mb-3">No tienes colecciones</h3>
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">Crea tu primera colección para organizar tus entradas y mantener tus ideas ordenadas por temas.</p>
+                    <a href="{% url 'collection_create' %}" class="btn-primary inline-block transform transition hover:scale-105 shadow-lg">
+                        <i class="fas fa-plus mr-2"></i> Crear mi primera colección
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

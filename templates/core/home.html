@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - Inicio{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    {% if user.is_authenticated %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Columna izquierda - Perfil resumido -->
+            <div class="md:col-span-1">
+                <div class="card p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center mr-4">
+                            {% if user.profile.profile_thumbnail %}
+                                <img src="{{ user.profile.profile_thumbnail.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-eureka-orange flex items-center justify-center text-eureka-dark text-2xl font-bold">
+                                    {{ user.username.0|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-eureka-dark">{{ user.username }}</h2>
+                            <p class="text-gray-500 text-sm">@{{ user.username }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-center mb-4">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="block text-xl font-bold text-eureka-dark">{{ user.collections.count }}</span>
+                            <span class="text-sm text-gray-500">Colecciones</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="block text-xl font-bold text-eureka-dark">{{ user.entries.count }}</span>
+                            <span class="text-sm text-gray-500">Entradas</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'profile' %}" class="btn-secondary w-full flex justify-center items-center">
+                        <i class="fas fa-user mr-2"></i> Ver perfil completo
+                    </a>
+                </div>
+                
+                <!-- Menú de navegación lateral -->
+                <div class="card overflow-hidden">
+                    <div class="bg-eureka-dark text-white py-3 px-4">
+                        <h3 class="font-bold text-eureka-orange">Navegación</h3>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        <a href="#" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-book-open text-eureka-orange mr-3"></i>
+                            <span>Mis colecciones</span>
+                        </a>
+                        <a href="#" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-star text-eureka-orange mr-3"></i>
+                            <span>Favoritos</span>
+                        </a>
+                        <a href="#" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-users text-eureka-orange mr-3"></i>
+                            <span>Amigos</span>
+                        </a>
+                        <a href="#" class="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-cog text-eureka-orange mr-3"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna central - Feed principal -->
+            <div class="md:col-span-2">
+                <!-- Crear nueva entrada -->
+                <div class="card p-6 mb-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                            {% if user.profile.profile_thumbnail %}
+                                <img src="{{ user.profile.profile_thumbnail.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-eureka-orange flex items-center justify-center text-eureka-dark font-bold">
+                                    {{ user.username.0|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            <textarea class="w-full p-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-eureka-orange focus:border-transparent" rows="3" placeholder="¿Qué estás pensando?"></textarea>
+                            <div class="flex justify-between items-center mt-3">
+                                <div class="flex space-x-2">
+                                    <button class="text-eureka-orange hover:text-eureka-dark transition-colors">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                    <button class="text-eureka-orange hover:text-eureka-dark transition-colors">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <button class="text-eureka-orange hover:text-eureka-dark transition-colors">
+                                        <i class="fas fa-smile"></i>
+                                    </button>
+                                </div>
+                                <button class="btn-primary">
+                                    <i class="fas fa-feather-alt mr-2"></i> Publicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feed de entradas -->
+                <div class="space-y-6">
+                    {% if user.entries.exists %}
+                        {% for entry in user.entries.all|slice:":5" %}
+                            <div class="card">
+                                <div class="p-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center mr-3">
+                                            {% if user.profile.profile_thumbnail %}
+                                                <img src="{{ user.profile.profile_thumbnail.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                                <div class="w-full h-full bg-eureka-orange flex items-center justify-center text-eureka-dark font-bold">
+                                                    {{ user.username.0|upper }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-eureka-dark">{{ user.username }}</h3>
+                                            <p class="text-gray-500 text-xs">{{ entry.created_at|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                    </div>
+                                    <h4 class="text-xl font-bold text-eureka-dark mb-2">{{ entry.title }}</h4>
+                                    <p class="text-gray-700 mb-4">{{ entry.content|truncatewords:30 }}</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex space-x-4">
+                                            <button class="flex items-center text-gray-500 hover:text-eureka-orange transition-colors">
+                                                <i class="far fa-heart mr-1"></i>
+                                                <span>Me gusta</span>
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-eureka-orange transition-colors">
+                                                <i class="far fa-comment mr-1"></i>
+                                                <span>Comentar</span>
+                                            </button>
+                                        </div>
+                                        <a href="#" class="text-eureka-orange hover:underline">Leer más</a>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-6 py-3 flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">
+                                        <i class="fas fa-folder text-eureka-orange mr-1"></i>
+                                        {{ entry.collection.name }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        <i class="fas fa-eye text-eureka-orange mr-1"></i>
+                                        {{ entry.visibility }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="card p-8 text-center">
+                            <div class="text-6xl text-eureka-orange mb-4">
+                                <i class="fas fa-feather-alt"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-eureka-dark mb-2">¡Comienza a escribir!</h3>
+                            <p class="text-gray-600 mb-6">Aún no tienes entradas. Crea tu primera entrada para comenzar a compartir tus pensamientos.</p>
+                            <a href="#" class="btn-primary inline-flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Crear primera entrada
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Página de bienvenida para usuarios no autenticados -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-eureka-dark mb-6 leading-tight">
+                    Captura tus <span class="text-eureka-orange">ideas</span> y comparte tus <span class="text-eureka-orange">pensamientos</span>
+                </h1>
+                
+                <p class="text-lg text-gray-600 mb-8">
+                    Eureka es una plataforma donde puedes organizar tus escritos, compartir tus ideas y conectar con otros escritores.
+                </p>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start">
+                        <div class="bg-eureka-orange rounded-full p-2 mr-4">
+                            <i class="fas fa-pencil-alt text-eureka-dark"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-eureka-dark">Escribe sin límites</h3>
+                            <p class="text-gray-600">Crea colecciones para organizar tus escritos por temas.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="bg-eureka-orange rounded-full p-2 mr-4">
+                            <i class="fas fa-users text-eureka-dark"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-eureka-dark">Conecta con amigos</h3>
+                            <p class="text-gray-600">Comparte tus escritos y descubre lo que otros están creando.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="bg-eureka-orange rounded-full p-2 mr-4">
+                            <i class="fas fa-chart-line text-eureka-dark"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-eureka-dark">Sigue tu progreso</h3>
+                            <p class="text-gray-600">Visualiza tu actividad de escritura a lo largo del tiempo.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'register' %}" class="btn-primary text-center">
+                        <i class="fas fa-user-plus mr-2"></i> Crear cuenta
+                    </a>
+                    <a href="{% url 'login' %}" class="btn-secondary text-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Iniciar sesión
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hidden md:block">
+                <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" alt="Escritura" class="rounded-xl shadow-lg">
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

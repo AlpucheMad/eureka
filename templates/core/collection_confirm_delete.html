@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Cabecera con fondo degradado -->
+    <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ title }}</h1>
+                    <p class="text-white text-opacity-90">Esta acción no se puede deshacer</p>
+                </div>
+                <a href="{% url 'collection_list' %}" class="bg-white text-red-600 hover:bg-gray-100 transition-all duration-300 rounded-full py-2 px-6 flex items-center font-medium shadow-md transform hover:scale-105">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mensajes con animación -->
+    {% if messages %}
+        <div class="mb-8 space-y-2">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-fadeIn">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Confirmación de eliminación con diseño mejorado -->
+    <div class="card shadow-lg border border-red-100 overflow-hidden">
+        <div class="p-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-500 mb-6 animate-pulse">
+                    <i class="fas fa-exclamation-triangle text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">¿Estás seguro de eliminar esta colección?</h2>
+                <div class="max-w-lg mx-auto">
+                    <p class="text-gray-600 mb-4">Estás a punto de eliminar la colección <span class="font-bold text-red-600">"{{ collection.name }}"</span>.</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-red-700 font-medium">Esta acción eliminará permanentemente:</p>
+                                <ul class="list-disc list-inside text-red-600 mt-2 space-y-1 text-sm">
+                                    <li>La colección "{{ collection.name }}"</li>
+                                    <li>Todas las entradas asociadas ({{ collection.entries.count }} entradas)</li>
+                                    <li>Todos los archivos adjuntos a estas entradas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-5 rounded-lg mb-6 max-w-md mx-auto">
+                    <h3 class="font-bold text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i> Detalles de la colección:
+                    </h3>
+                    <div class="space-y-2 text-left">
+                        <p class="flex items-start">
+                            <span class="font-medium text-gray-600 w-32">Nombre:</span> 
+                            <span class="text-gray-800">{{ collection.name }}</span>
+                        </p>
+                        <p class="flex items-start">
+                            <span class="font-medium text-gray-600 w-32">Descripción:</span> 
+                            <span class="text-gray-800">{% if collection.description %}{{ collection.description }}{% else %}<span class="italic text-gray-400">Sin descripción</span>{% endif %}</span>
+                        </p>
+                        <p class="flex items-start">
+                            <span class="font-medium text-gray-600 w-32">Fecha de creación:</span> 
+                            <span class="text-gray-800">{{ collection.created_at|date:"d/m/Y H:i" }}</span>
+                        </p>
+                        <p class="flex items-start">
+                            <span class="font-medium text-gray-600 w-32">Entradas:</span> 
+                            <span class="text-gray-800">{{ collection.entries.count }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex justify-center space-x-4">
+                    <a href="{% url 'collection_list' %}" class="px-6 py-3 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-times mr-2"></i> Cancelar
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center shadow-md">
+                        <i class="fas fa-trash-alt mr-2"></i> Eliminar definitivamente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Alternativas -->
+    <div class="mt-8 bg-blue-50 rounded-lg p-4 border border-blue-100">
+        <h3 class="text-blue-800 font-medium flex items-center mb-2">
+            <i class="fas fa-lightbulb text-blue-500 mr-2"></i> Alternativas a considerar
+        </h3>
+        <ul class="text-blue-700 text-sm space-y-2">
+            <li class="flex items-start">
+                <i class="fas fa-edit text-blue-500 mr-2 mt-1"></i>
+                <span>En lugar de eliminar, puedes <a href="{% url 'collection_edit' collection.pk %}" class="text-blue-600 hover:underline">editar la colección</a> para cambiar su nombre o descripción</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-folder text-blue-500 mr-2 mt-1"></i>
+                <span>Si quieres conservar las entradas, considera moverlas a otra colección antes de eliminar esta</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación para el botón de eliminar
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.querySelector('button[type="submit"]');
+        deleteButton.addEventListener('mouseover', function() {
+            this.classList.add('animate-pulse');
+        });
+        deleteButton.addEventListener('mouseout', function() {
+            this.classList.remove('animate-pulse');
+        });
+    });
+</script>
+{% endblock %} 

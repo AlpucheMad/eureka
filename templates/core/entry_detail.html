@@ -1,0 +1,740 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - {{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Cabecera con fondo degradado -->
+    <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
+        <div class="bg-gradient-to-r 
+            {% if entry.collection.pk|divisibleby:5 %}
+                from-purple-500 to-indigo-600
+            {% elif entry.collection.pk|divisibleby:4 %}
+                from-green-500 to-teal-600
+            {% elif entry.collection.pk|divisibleby:3 %}
+                from-red-500 to-pink-600
+            {% elif entry.collection.pk|divisibleby:2 %}
+                from-blue-500 to-indigo-600
+            {% else %}
+                from-eureka-orange to-yellow-500
+            {% endif %} p-8">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ entry.title }}</h1>
+                    <div class="flex items-center text-white text-opacity-90">
+                        <div class="mr-4 flex items-center">
+                            <i class="far fa-calendar-alt mr-1"></i> 
+                            Creada el {{ entry.created_at|date:"d/m/Y" }}
+                        </div>
+                        <div class="flex items-center">
+                            <i class="far fa-folder mr-1"></i> 
+                            {{ entry.collection.name }}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="{% url 'entry_edit' entry.pk %}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full py-2 px-4 flex items-center transition-all duration-300">
+                        <i class="fas fa-edit mr-2"></i> Editar
+                    </a>
+                    <a href="{% url 'collection_detail' entry.collection.pk %}" class="bg-white text-gray-800 hover:bg-gray-100 rounded-full py-2 px-4 flex items-center transition-all duration-300 shadow-md">
+                        <i class="fas fa-arrow-left mr-2"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mensajes con animación -->
+    {% if messages %}
+        <div class="mb-8 space-y-2">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-fadeIn">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Contenido principal -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Barra lateral con información y acciones -->
+        <div class="md:col-span-1 space-y-6">
+            <!-- Información del autor -->
+            <div class="card p-6 shadow-md border border-gray-100 rounded-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 -m-6 p-6 mb-4">
+                    <h3 class="text-lg font-bold text-eureka-dark flex items-center">
+                        <i class="fas fa-user text-eureka-orange mr-2"></i> Autor
+                    </h3>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full overflow-hidden mr-3 ring-2 ring-eureka-orange ring-offset-2">
+                        {% if entry.user.profile.profile_thumbnail %}
+                            <img src="{{ entry.user.profile.profile_thumbnail.url }}?t={{ entry.user.profile.updated_at|date:'U' }}" alt="{{ entry.user.username }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-eureka-orange flex items-center justify-center text-eureka-dark font-bold">
+                                {{ entry.user.username.0|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-eureka-dark">{{ entry.user.username }}</h4>
+                        <p class="text-gray-500 text-xs">{{ entry.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información de la entrada -->
+            <div class="card p-6 shadow-md border border-gray-100 rounded-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 -m-6 p-6 mb-4">
+                    <h3 class="text-lg font-bold text-eureka-dark flex items-center">
+                        <i class="fas fa-info-circle text-eureka-orange mr-2"></i> Detalles
+                    </h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-bookmark text-blue-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-gray-600 text-sm">Estado</span>
+                            <p class="font-medium 
+                                {% if entry.status == 'favorite' %}
+                                    text-yellow-600
+                                {% elif entry.status == 'saved' %}
+                                    text-green-600
+                                {% elif entry.status == 'draft' %}
+                                    text-blue-600
+                                {% else %}
+                                    text-gray-600
+                                {% endif %}
+                            ">
+                                {{ entry.get_status_display }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-eye text-green-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-gray-600 text-sm">Visibilidad</span>
+                            <p class="font-medium 
+                                {% if entry.visibility == 'public' %}
+                                    text-green-600
+                                {% else %}
+                                    text-blue-600
+                                {% endif %}
+                            ">
+                                {{ entry.get_visibility_display }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-folder text-purple-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-gray-600 text-sm">Colección</span>
+                            <p>
+                                <a href="{% url 'collection_detail' entry.collection.pk %}" class="font-medium text-eureka-orange hover:underline">
+                                    {{ entry.collection.name }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-calendar-alt text-yellow-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-gray-600 text-sm">Creada</span>
+                            <p class="font-medium text-gray-800">{{ entry.created_at|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-clock text-red-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-gray-600 text-sm">Actualizada</span>
+                            <p class="font-medium text-gray-800">{{ entry.updated_at|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="card p-6 shadow-md border border-gray-100 rounded-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 -m-6 p-6 mb-4">
+                    <h3 class="text-lg font-bold text-eureka-dark flex items-center">
+                        <i class="fas fa-cog text-eureka-orange mr-2"></i> Acciones
+                    </h3>
+                </div>
+                <div class="space-y-2">
+                    <a href="{% url 'entry_edit' entry.pk %}" class="flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors group">
+                        <span class="flex items-center text-gray-700 group-hover:text-blue-600">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-edit text-blue-500"></i>
+                            </div>
+                            <span>Editar entrada</span>
+                        </span>
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+                    </a>
+                    <a href="{% url 'entry_toggle_favorite' entry.pk %}" class="flex items-center justify-between p-3 hover:bg-yellow-50 rounded-lg transition-colors group">
+                        <span class="flex items-center text-gray-700 group-hover:text-yellow-600">
+                            <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3 group-hover:bg-yellow-200 transition-colors">
+                                {% if entry.status == 'favorite' %}
+                                    <i class="fas fa-star text-yellow-500"></i>
+                                {% else %}
+                                    <i class="far fa-star text-yellow-500"></i>
+                                {% endif %}
+                            </div>
+                            <span>
+                                {% if entry.status == 'favorite' %}
+                                    Quitar de favoritos
+                                {% else %}
+                                    Marcar como favorito
+                                {% endif %}
+                            </span>
+                        </span>
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-yellow-500 transition-colors"></i>
+                    </a>
+                    <a href="{% url 'entry_toggle_visibility' entry.pk %}" class="flex items-center justify-between p-3 hover:bg-green-50 rounded-lg transition-colors group">
+                        <span class="flex items-center text-gray-700 group-hover:text-green-600">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                {% if entry.visibility == 'public' %}
+                                    <i class="fas fa-eye-slash text-green-500"></i>
+                                {% else %}
+                                    <i class="fas fa-eye text-green-500"></i>
+                                {% endif %}
+                            </div>
+                            <span>
+                                {% if entry.visibility == 'public' %}
+                                    Hacer privada
+                                {% else %}
+                                    Hacer pública
+                                {% endif %}
+                            </span>
+                        </span>
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-500 transition-colors"></i>
+                    </a>
+                    <div class="border-t border-gray-100 my-2"></div>
+                    <a href="{% url 'entry_delete' entry.pk %}" class="flex items-center justify-between p-3 hover:bg-red-50 rounded-lg transition-colors group text-red-600">
+                        <span class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors">
+                                <i class="fas fa-trash-alt text-red-500"></i>
+                            </div>
+                            <span>Eliminar entrada</span>
+                        </span>
+                        <i class="fas fa-chevron-right group-hover:text-red-500 transition-colors"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenido de la entrada -->
+        <div class="md:col-span-3">
+            <div class="card p-8 shadow-md border border-gray-100">
+                {% if entry.entry_image %}
+                <div class="mb-6 rounded-lg overflow-hidden shadow-sm">
+                    <a href="{{ entry.entry_image.url }}?t={{ entry.updated_at|date:'U' }}" 
+                       class="entry-image-link cursor-zoom-in block"
+                       data-pswp-width="{{ entry.entry_image.width }}" 
+                       data-pswp-height="{{ entry.entry_image.height }}"
+                       target="_blank">
+                        <img src="{{ entry.entry_image.url }}?t={{ entry.updated_at|date:'U' }}" 
+                             alt="{{ entry.title }}" 
+                             class="w-full max-h-96 object-contain mx-auto hover:opacity-95 transition-opacity">
+                        <div class="flex justify-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-search-plus mr-1"></i> Clic para ampliar
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
+                
+                <div class="prose prose-lg max-w-none">
+                    {{ entry.content|linebreaks }}
+                </div>
+                
+                <!-- Etiquetas y metadatos -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-gray-600 mr-2">
+                            <i class="fas fa-tags text-eureka-orange"></i>
+                        </span>
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                            {{ entry.collection.name }}
+                        </span>
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                            {{ entry.get_status_display }}
+                        </span>
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                            {{ entry.get_visibility_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Acciones rápidas -->
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <a href="{% url 'entry_toggle_favorite' entry.pk %}" class="flex items-center text-gray-500 hover:text-eureka-orange transition-colors">
+                            {% if entry.status == 'favorite' %}
+                                <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                <span>Favorito</span>
+                            {% else %}
+                                <i class="far fa-star mr-1"></i>
+                                <span>Marcar favorito</span>
+                            {% endif %}
+                        </a>
+                        <button id="share-button" class="flex items-center text-gray-500 hover:text-eureka-orange transition-colors">
+                            <i class="fas fa-share-alt mr-1"></i>
+                            <span>Compartir</span>
+                        </button>
+                    </div>
+                    <a href="{% url 'entry_edit' entry.pk %}" class="text-eureka-orange hover:underline flex items-center">
+                        Editar <i class="fas fa-edit ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sugerencias -->
+            <div class="mt-8 bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <h3 class="text-blue-800 font-medium flex items-center mb-2">
+                    <i class="fas fa-lightbulb text-blue-500 mr-2"></i> Consejos para gestionar tus entradas
+                </h3>
+                <ul class="text-blue-700 text-sm space-y-2">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                        <span>Marca como favoritas las entradas más importantes para acceder rápidamente a ellas</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                        <span>Actualiza regularmente el contenido para mantenerlo relevante</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                        <span>Organiza tus entradas en colecciones temáticas para facilitar su búsqueda</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para compartir -->
+    <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center hidden overflow-y-auto py-10">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 my-auto">
+            <div class="bg-gradient-to-r from-eureka-orange to-yellow-500 p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="text-xl font-bold text-white">Compartir entrada</h3>
+                <button id="close-modal" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                <p class="text-gray-600 mb-4">Genera una imagen de tu entrada para compartir en redes sociales:</p>
+                
+                <!-- Opciones de personalización -->
+                <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-palette text-eureka-orange mr-2"></i> Estilo de fondo
+                        </label>
+                        <div class="grid grid-cols-5 gap-2 mb-3">
+                            <button class="w-10 h-10 rounded-lg bg-gradient-to-r from-eureka-orange to-yellow-500 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('orange')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('blue')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-teal-600 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('green')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('purple')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('red')"></button>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button class="w-10 h-10 rounded-lg bg-gray-800 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('dark-gray')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-gray-900 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('black')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-indigo-900 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('dark-indigo')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-blue-900 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('dark-blue')"></button>
+                            <button class="w-10 h-10 rounded-lg bg-green-900 border-2 border-white shadow-sm hover:shadow-md transition-shadow" onclick="setBackground('dark-green')"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-cog text-eureka-orange mr-2"></i> Opciones de contenido
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                <span class="text-sm text-gray-700 flex items-center">
+                                    <i class="fas fa-user text-blue-500 mr-2"></i> Incluir usuario
+                                </span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                    <input type="checkbox" id="include-user" class="sr-only peer" checked>
+                                    <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-eureka-orange peer-checked:after:translate-x-full peer-checked:bg-eureka-orange after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                <span class="text-sm text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar-alt text-green-500 mr-2"></i> Incluir fecha
+                                </span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                    <input type="checkbox" id="include-date" class="sr-only peer" checked>
+                                    <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-eureka-orange peer-checked:after:translate-x-full peer-checked:bg-eureka-orange after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                <span class="text-sm text-gray-700 flex items-center">
+                                    <i class="fas fa-folder text-yellow-500 mr-2"></i> Incluir colección
+                                </span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                    <input type="checkbox" id="include-collection" class="sr-only peer" checked>
+                                    <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-eureka-orange peer-checked:after:translate-x-full peer-checked:bg-eureka-orange after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                <span class="text-sm text-gray-700 flex items-center">
+                                    <i class="fas fa-arrows-alt-v text-purple-500 mr-2"></i> Layout vertical
+                                </span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                    <input type="checkbox" id="vertical-layout" class="sr-only peer">
+                                    <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-eureka-orange peer-checked:after:translate-x-full peer-checked:bg-eureka-orange after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vista previa -->
+                <div class="mb-6">
+                    <div id="share-preview" class="border border-gray-200 rounded-lg overflow-hidden shadow-md">
+                        <!-- El contenido se generará dinámicamente con JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="flex justify-end space-x-3">
+                    <button id="download-image" class="px-4 py-2 bg-eureka-orange text-white rounded-md hover:bg-eureka-dark transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i> Descargar imagen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenedor de PhotoSwipe -->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="Cerrar (Esc)"></button>
+                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div>
+                </div>
+                <button class="pswp__button pswp__button--arrow--left" title="Anterior"></button>
+                <button class="pswp__button pswp__button--arrow--right" title="Siguiente"></button>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+    // Animación sutil al cargar el contenido
+    document.addEventListener('DOMContentLoaded', function() {
+        const content = document.querySelector('.prose');
+        content.classList.add('opacity-0');
+        setTimeout(() => {
+            content.classList.add('transition-opacity', 'duration-500');
+            content.classList.remove('opacity-0');
+        }, 100);
+        
+        // Inicializar la funcionalidad de compartir
+        initShareFunctionality();
+        
+        // Inicializar PhotoSwipe para la imagen de la entrada
+        initPhotoSwipe();
+    });
+    
+    // Inicializar PhotoSwipe
+    function initPhotoSwipe() {
+        const entryImageLink = document.querySelector('.entry-image-link');
+        
+        if (entryImageLink) {
+            const lightbox = new PhotoSwipeLightbox({
+                gallery: '.card',
+                children: 'a.entry-image-link',
+                pswpModule: PhotoSwipe,
+                showHideAnimationType: 'zoom',
+                initialZoomLevel: 'fit',
+                secondaryZoomLevel: 2,
+                maxZoomLevel: 4,
+                wheelToZoom: true,
+                padding: { top: 30, bottom: 30, left: 30, right: 30 },
+                bgOpacity: 0.85,
+                mainClass: 'pswp--custom-bg',
+                closeTitle: 'Cerrar (Esc)',
+                zoomTitle: 'Zoom in/out',
+                arrowPrevTitle: 'Anterior',
+                arrowNextTitle: 'Siguiente',
+                errorMsg: 'La imagen no se pudo cargar'
+            });
+            
+            lightbox.on('uiRegister', function() {
+                lightbox.pswp.ui.registerElement({
+                    name: 'custom-caption',
+                    order: 9,
+                    isButton: false,
+                    appendTo: 'root',
+                    html: 'Caption text',
+                    onInit: (el, pswp) => {
+                        lightbox.pswp.on('change', () => {
+                            const currSlideElement = lightbox.pswp.currSlide.data.element;
+                            let captionHTML = '';
+                            if (currSlideElement) {
+                                const alt = currSlideElement.querySelector('img').getAttribute('alt');
+                                captionHTML = alt || '';
+                            }
+                            el.innerHTML = captionHTML;
+                        });
+                    }
+                });
+            });
+            
+            lightbox.init();
+            
+            // Prevenir comportamiento predeterminado del enlace
+            entryImageLink.addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+        }
+    }
+    
+    // Funcionalidad para compartir
+    function initShareFunctionality() {
+        const shareButton = document.getElementById('share-button');
+        const shareModal = document.getElementById('share-modal');
+        const closeModal = document.getElementById('close-modal');
+        const downloadButton = document.getElementById('download-image');
+        const sharePreview = document.getElementById('share-preview');
+        
+        // Datos de la entrada
+        const entryTitle = "{{ entry.title }}";
+        const entryContent = "{{ entry.content|truncatewords:50|escapejs }}";
+        const entryUser = "{{ entry.user.username }}";
+        const entryDate = "{{ entry.created_at|date:'d/m/Y' }}";
+        const collectionName = "{{ entry.collection.name }}";
+        const userInitial = "{{ entry.user.username.0|upper }}";
+        const userHasProfileImage = {% if entry.user.profile.profile_thumbnail %}true{% else %}false{% endif %};
+        const userProfileImage = "{% if entry.user.profile.profile_thumbnail %}{{ entry.user.profile.profile_thumbnail.url }}?t={{ entry.user.profile.updated_at|date:'U' }}{% endif %}";
+        
+        // Configuración actual
+        let currentBackground = 'orange';
+        
+        // Función para actualizar la vista previa
+        function updatePreview() {
+            const includeUser = document.getElementById('include-user').checked;
+            const includeDate = document.getElementById('include-date').checked;
+            const includeCollection = document.getElementById('include-collection').checked;
+            const verticalLayout = document.getElementById('vertical-layout').checked;
+            
+            // Determinar la clase de fondo según la selección
+            let bgClass = '';
+            let logoSrc = '';
+            
+            // Seleccionar el logo adecuado según el color de fondo
+            switch(currentBackground) {
+                case 'orange':
+                    bgClass = 'bg-gradient-to-r from-eureka-orange to-yellow-500';
+                    logoSrc = '/static/img/EUREKA-ICON-BLCK-PNG.png';
+                    break;
+                case 'blue':
+                    bgClass = 'bg-gradient-to-r from-blue-500 to-indigo-600';
+                    logoSrc = '/static/img/EUREKA-ICON-CLR-PNG.png';
+                    break;
+                case 'green':
+                    bgClass = 'bg-gradient-to-r from-green-500 to-teal-600';
+                    logoSrc = '/static/img/EUREKA-ICON-CLR-PNG.png';
+                    break;
+                case 'purple':
+                    bgClass = 'bg-gradient-to-r from-purple-500 to-indigo-600';
+                    logoSrc = '/static/img/EUREKA-ICON-CLR-PNG.png';
+                    break;
+                case 'red':
+                    bgClass = 'bg-gradient-to-r from-red-500 to-pink-600';
+                    logoSrc = '/static/img/EUREKA-ICON-CLR-PNG.png';
+                    break;
+                case 'dark-gray':
+                    bgClass = 'bg-gray-800';
+                    logoSrc = '/static/img/EUREKA-LOGO-BLCK-PNG.png';
+                    break;
+                case 'black':
+                    bgClass = 'bg-gray-900';
+                    logoSrc = '/static/img/EUREKA-LOGO-BLCK-PNG.png';
+                    break;
+                case 'dark-indigo':
+                    bgClass = 'bg-indigo-900';
+                    logoSrc = '/static/img/EUREKA-LOGO-BLCK-PNG.png';
+                    break;
+                case 'dark-blue':
+                    bgClass = 'bg-blue-900';
+                    logoSrc = '/static/img/EUREKA-LOGO-BLCK-PNG.png';
+                    break;
+                case 'dark-green':
+                    bgClass = 'bg-green-900';
+                    logoSrc = '/static/img/EUREKA-LOGO-BLCK-PNG.png';
+                    break;
+            }
+            
+            // Generar el HTML para el avatar del usuario
+            let userAvatarHTML = '';
+            if (userHasProfileImage) {
+                userAvatarHTML = `<div class="w-6 h-6 rounded-full overflow-hidden mr-2">
+                    <img src="${userProfileImage}" alt="${entryUser}" class="w-full h-full object-cover">
+                </div>`;
+            } else {
+                userAvatarHTML = `<div class="w-6 h-6 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-2">
+                    <span class="text-xs font-bold">${userInitial}</span>
+                </div>`;
+            }
+            
+            // Construir el HTML para la vista previa
+            if (verticalLayout) {
+                // Layout vertical
+                sharePreview.innerHTML = `
+                    <div class="relative">
+                        <div class="${bgClass} p-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <img src="${logoSrc}" alt="Eureka" class="h-10">
+                                <div class="text-white text-opacity-80 text-sm">
+                                    ${includeDate ? entryDate : ''}
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-2">${entryTitle}</h2>
+                            ${includeUser ? `
+                                <div class="flex items-center text-white text-opacity-90 mb-4">
+                                    ${userAvatarHTML}
+                                    <span>${entryUser}</span>
+                                </div>
+                            ` : ''}
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <div class="prose prose-sm max-w-none">
+                                    <p>${entryContent}</p>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                                    ${includeCollection ? `
+                                        <div class="text-sm text-gray-500">
+                                            <i class="fas fa-folder text-eureka-orange mr-1"></i> ${collectionName}
+                                        </div>
+                                    ` : ''}
+                                    <div class="text-sm text-eureka-orange">
+                                        eureka.neodigital.mx
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Layout horizontal (original)
+                sharePreview.innerHTML = `
+                    <div class="relative">
+                        <div class="${bgClass} p-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <img src="${logoSrc}" alt="Eureka" class="h-10">
+                                <div class="text-white text-opacity-80 text-sm">
+                                    ${includeDate ? entryDate : ''}
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-2">${entryTitle}</h2>
+                            ${includeUser ? `
+                                <div class="flex items-center text-white text-opacity-90 mb-4">
+                                    ${userAvatarHTML}
+                                    <span>${entryUser}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="bg-white p-6">
+                            <div class="prose prose-sm max-w-none">
+                                <p>${entryContent}</p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                                ${includeCollection ? `
+                                    <div class="text-sm text-gray-500">
+                                        <i class="fas fa-folder text-eureka-orange mr-1"></i> ${collectionName}
+                                    </div>
+                                ` : ''}
+                                <div class="text-sm text-eureka-orange">
+                                    eureka.neodigital.mx
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Función para cambiar el fondo
+        window.setBackground = function(background) {
+            currentBackground = background;
+            updatePreview();
+        };
+        
+        // Función para descargar la imagen
+        downloadButton.addEventListener('click', function() {
+            html2canvas(sharePreview.querySelector('div'), {
+                scale: 2, // Mayor calidad
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `eureka-${entryTitle.toLowerCase().replace(/\s+/g, '-')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+        
+        // Mostrar modal al hacer clic en compartir
+        shareButton.addEventListener('click', function() {
+            shareModal.classList.remove('hidden');
+            updatePreview(); // Generar vista previa inicial
+        });
+        
+        // Cerrar modal
+        closeModal.addEventListener('click', function() {
+            shareModal.classList.add('hidden');
+        });
+        
+        // Cerrar modal al hacer clic fuera
+        shareModal.addEventListener('click', function(e) {
+            if (e.target === shareModal) {
+                shareModal.classList.add('hidden');
+            }
+        });
+        
+        // Actualizar vista previa cuando cambian las opciones
+        document.getElementById('include-user').addEventListener('change', updatePreview);
+        document.getElementById('include-date').addEventListener('change', updatePreview);
+        document.getElementById('include-collection').addEventListener('change', updatePreview);
+        document.getElementById('vertical-layout').addEventListener('change', updatePreview);
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Eureka - Términos de Servicio{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto my-10 px-4">
+    <div class="card p-8 border border-gray-200">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-eureka-dark mb-2">Términos de Servicio</h1>
+            <p class="text-gray-500">Última actualización: 5 de marzo de 2025</p>
+        </div>
+        
+        <div class="prose prose-lg max-w-none">
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">1. Introducción</h2>
+            <p>Bienvenido a Eureka, una plataforma diseñada para que los usuarios puedan organizar y compartir sus escritos. Estos Términos de Servicio ("Términos") rigen tu acceso y uso de la plataforma Eureka, incluyendo cualquier contenido, funcionalidad y servicios ofrecidos en o a través de nuestro sitio web.</p>
+            <p>Al registrarte, acceder o utilizar nuestros servicios, aceptas estar legalmente obligado por estos Términos. Si no estás de acuerdo con alguno de estos términos, no debes acceder ni utilizar nuestros servicios.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">2. Definiciones</h2>
+            <ul class="list-disc pl-6 mb-4">
+                <li><strong>"Eureka"</strong>, <strong>"nosotros"</strong>, <strong>"nos"</strong> o <strong>"nuestro"</strong> se refiere a la plataforma Eureka.</li>
+                <li><strong>"Servicios"</strong> se refiere a todos los servicios proporcionados por Eureka, incluyendo el sitio web, aplicaciones y funcionalidades relacionadas.</li>
+                <li><strong>"Usuario"</strong>, <strong>"tú"</strong> o <strong>"tu"</strong> se refiere a cualquier persona que acceda o utilice nuestros Servicios.</li>
+                <li><strong>"Contenido"</strong> se refiere a cualquier texto, imagen, video, audio u otro material que se publique, cargue o comparta a través de nuestros Servicios.</li>
+            </ul>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">3. Registro y Cuentas</h2>
+            <p>Para utilizar ciertas funciones de nuestros Servicios, debes registrarte y crear una cuenta. Al hacerlo, aceptas proporcionar información precisa, actual y completa. Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran bajo tu cuenta.</p>
+            <p>Nos reservamos el derecho de suspender o terminar tu cuenta si determinamos, a nuestra sola discreción, que has violado estos Términos o si tu conducta puede perjudicar a Eureka o a otros usuarios.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">4. Contenido del Usuario</h2>
+            <p>Eres el propietario del contenido que publicas en Eureka. Al publicar contenido, nos otorgas una licencia mundial, no exclusiva, libre de regalías, sublicenciable y transferible para usar, reproducir, distribuir, preparar trabajos derivados, mostrar y ejecutar dicho contenido en relación con los Servicios.</p>
+            <p>Eres el único responsable del contenido que publicas y de las consecuencias de compartirlo. No publicarás contenido que:</p>
+            <ul class="list-disc pl-6 mb-4">
+                <li>Sea ilegal, difamatorio, obsceno, pornográfico, invasivo de la privacidad, o que promueva el odio o la discriminación.</li>
+                <li>Infrinja derechos de propiedad intelectual de terceros.</li>
+                <li>Contenga software malicioso o código dañino.</li>
+                <li>Acose, intimide o amenace a otros usuarios.</li>
+            </ul>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">5. Propiedad Intelectual</h2>
+            <p>Eureka y sus contenidos, características y funcionalidades son propiedad de Eureka y están protegidos por leyes de derechos de autor, marcas registradas y otras leyes de propiedad intelectual. No puedes reproducir, distribuir, modificar, crear trabajos derivados, mostrar públicamente, ejecutar públicamente, republicar, descargar, almacenar o transmitir cualquier material de nuestros Servicios sin nuestro consentimiento previo por escrito.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">6. Privacidad</h2>
+            <p>Tu privacidad es importante para nosotros. Nuestra <a href="{% url 'privacy' %}" class="text-eureka-orange hover:underline">Política de Privacidad</a> describe cómo recopilamos, usamos y compartimos tu información personal cuando utilizas nuestros Servicios.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">7. Limitación de Responsabilidad</h2>
+            <p>En ningún caso Eureka, sus directores, empleados, socios, agentes, proveedores o afiliados serán responsables por cualquier daño indirecto, incidental, especial, consecuente o punitivo, incluyendo sin limitación, pérdida de beneficios, datos, uso, buena voluntad, u otras pérdidas intangibles, resultantes de:</p>
+            <ul class="list-disc pl-6 mb-4">
+                <li>Tu acceso o uso o incapacidad para acceder o usar los Servicios.</li>
+                <li>Cualquier conducta o contenido de terceros en los Servicios.</li>
+                <li>Contenido obtenido de los Servicios.</li>
+                <li>Acceso no autorizado, uso o alteración de tus transmisiones o contenido.</li>
+            </ul>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">8. Modificaciones</h2>
+            <p>Nos reservamos el derecho de modificar estos Términos en cualquier momento. Si realizamos cambios materiales, te notificaremos a través de nuestro sitio web o por correo electrónico. Tu uso continuado de los Servicios después de dichos cambios constituye tu aceptación de los nuevos Términos.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">9. Ley Aplicable</h2>
+            <p>Estos Términos se regirán e interpretarán de acuerdo con las leyes de España, sin tener en cuenta sus disposiciones sobre conflictos de leyes.</p>
+            
+            <h2 class="text-xl font-bold text-eureka-dark mt-8 mb-4">10. Contacto</h2>
+            <p>Si tienes alguna pregunta sobre estos Términos, por favor contáctanos a través de <a href="mailto:info@eureka-app.com" class="text-eureka-orange hover:underline">info@eureka-app.com</a>.</p>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="{% url 'home' %}" class="btn-secondary inline-flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i> Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
